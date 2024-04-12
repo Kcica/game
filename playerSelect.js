@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import * as canvasFunc from "./canvas.js"
 import { fontSize } from "./baseVariables.js"
 import { delegate, getTileParam } from "./functions.js"
