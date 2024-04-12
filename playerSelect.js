@@ -576,5 +576,3 @@ function loadNextPage(context, elements) {
     }
 
 }
-
->>>>>>> 5f3f5f1a2d6cdc2283a417939f0e0263af67ea9e
