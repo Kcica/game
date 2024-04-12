@@ -29,7 +29,7 @@ class playArea {
         const wHeight = window.innerHeight
         const wWidth = window.innerWidth
     
-        console.log(wWidth / 2 > wHeight / 4)
+        console.log(wWidth > wHeight)
         const center = wWidth / 2 > wHeight / 4 ? 
         {
             x: wWidth / 2 - wHeight / 4,
@@ -85,7 +85,7 @@ class playArea {
         console.log(this.center.x, this.center.y,
             (window.innerWidth * 0.45) * 2, (window.innerWidth * 0.45) * 2)
         this.context.beginPath()
-        window.innerWidth / 2 > window.innerHeight / 4 ? 
+        window.innerWidth > window.innerHeight  ? 
             this.context.roundRect(this.center.x, this.center.y,
                 window.innerHeight / 2, window.innerHeight / 2, 2) :
 

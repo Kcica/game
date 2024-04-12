@@ -1,7 +1,7 @@
 export function createCanvas() {
     const canvas = document.createElement('canvas')
 
-    if (window.innerWidth / 2 > window.innerHeight / 4){
+    if (window.innerWidth > window.innerHeight){
         canvas.width = window.innerWidth - 8
         canvas.height = window.innerHeight - 8
     } 
@@ -17,7 +17,7 @@ export function createCanvas() {
 }
 
 export function clearCanvas(context){
-    if (window.innerWidth / 2 > window.innerHeight / 4){
+    if (window.innerWidth > window.innerHeight){
         context.clearRect(0, 0, window.innerWidth - 8, window.innerHeight - 8)
     } 
     else{

@@ -3,7 +3,7 @@ export const tiles = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 3, 4, 5, 6, 7, 7
 
 
 export function fontSize(percentage){
-    return (window.innerWidth / 2 > window.innerHeight / 4) ? 
+    return (window.innerWidth > window.innerHeight) ? 
     window.innerWidth * percentage + "px Times" : window.innerHeight * percentage + "px Times"
 }
 
