@@ -2,9 +2,11 @@ import * as canvasFunc from "./canvas.js"
 import { fontSize } from "./baseVariables.js"
 import { delegate, getTileParam } from "./functions.js"
 import { createCanvas, getCenter } from "./canvas.js"
+import { loadSettings } from "./settingsPage.js"
+import { loadGame } from "./index.js"
 
 class playerSelection {
-    constructor() {
+    constructor(NOP = undefined) {
         const mainCanvas = createCanvas()
         this.mainContext = mainCanvas.getContext("2d")
 
@@ -14,7 +16,8 @@ class playerSelection {
         this.mainContext.font = fontSize(0.03)
 
         this.length = (this.mainContext.measureText(1))
-        const height = (this.length.actualBoundingBoxAscent + this.length.actualBoundingBoxDescent)
+        const height = (
+            this.length.actualBoundingBoxAscent + this.length.actualBoundingBoxDescent)
         this.width = this.length.width
 
         this.tileParam = getTileParam(
@@ -26,30 +29,37 @@ class playerSelection {
             center.y - 15 / 2 - height * 2
         )
 
-        let index = 1
 
-        if (window.innerWidth > window.innerHeight){
+        if (window.innerWidth > window.innerHeight) {
             const lengthHeading = this.mainContext.measureText("Select number of players")
             this.mainContext.fillStyle = "#2e3440"
-            this.mainContext.fillText("Select number of players",
+            this.mainContext.fillText(
+                "Select number of players",
                 center.x - lengthHeading.width / 2,
                 center.y - this.tileParam.bottomPadding * 3 - this.tileParam.height - this.tileParam.height * 1.5
             )
-        } 
-        else{
+        }
+        else {
             const lengthHeading = this.mainContext.measureText("Select number of players")
             this.mainContext.fillStyle = "#f1f3f5"
-            this.mainContext.fillText("Select number of players",
+            this.mainContext.fillText(
+                "Select number of players",
                 center.x - lengthHeading.width / 2,
                 center.y - this.tileParam.bottomPadding * 3 - this.tileParam.height
             )
         }
 
-        this.container = document.querySelector("#playerOptions")        
+        var index = 1
+        this.container = document.querySelector("#playerOptions")
 
         for (let row = 0; row < 2; row++) {
             for (let col = 0; col < 2; col++) {
-                this.renderTiles(row, col, index, "#81563e", "#ffeccbe0")
+                if (index == NOP) {
+                    this.renderTiles(row, col, index, "#ffeccb", "#81563ee0")
+                }
+                else {
+                    this.renderTiles(row, col, index, "#81563e", "#ffeccbe0")
+                }
 
                 const button = canvasFunc.insertElement(
                     this.tileParam.x + (col * (this.tileParam.width + this.tileParam.leftPadding)),
@@ -74,6 +84,7 @@ class playerSelection {
             this.tileParam.x + (col * (this.tileParam.width + this.tileParam.leftPadding)),
             this.tileParam.y + (row * (this.tileParam.height + this.tileParam.bottomPadding)),
             this.tileParam.width, this.tileParam.height)
+
         this.mainContext.lineWidth = 0.2
         this.mainContext.beginPath()
         this.mainContext.lineWidth = "3"
@@ -107,10 +118,10 @@ class playCustom {
         const labels = ["Begin", "Settings"]
 
         let index = 0
-        for(let label of labels){
+        for (let label of labels) {
             this.length = this.mainContext.measureText(label)
             this.height = (this.length.actualBoundingBoxAscent + this.length.actualBoundingBoxDescent)
-            
+
             this.tileParam = getTileParam(
                 10,
                 0,
@@ -158,11 +169,11 @@ class playCustom {
             (this.tileParam.y + (row * (this.tileParam.height + this.tileParam.bottomPadding))) + this.tileParam.height / 2 + this.tileParam.height / 8)
         this.mainContext.closePath()
     }
-    
-    redrawTiles(row, col, label, textFill, rectFill){
+
+    redrawTiles(row, col, label, textFill, rectFill) {
         const length = this.mainContext.measureText(label)
         const height = (this.length.actualBoundingBoxAscent + this.length.actualBoundingBoxDescent)
-        
+
         const tileParam = getTileParam(
             10,
             0,
@@ -189,7 +200,7 @@ class playCustom {
             (tileParam.x + (col * (tileParam.width + tileParam.leftPadding))) + tileParam.width / 2 - length.width / 2,
             (tileParam.y + (row * (tileParam.height + tileParam.bottomPadding))) + tileParam.height / 2 + tileParam.height / 8)
         this.mainContext.closePath()
-        
+
     }
 
     clearElement(x, y, width, height, textFill, rectFill) {
@@ -198,91 +209,136 @@ class playCustom {
 
 }
 
-export function loadSelectPage(context, elements) {
-    canvasFunc.clearCanvas(context)
-    document.body.removeChild(document.querySelector("canvas"))
-    for (let element of elements) {
-        document.body.removeChild(element)
+export function loadSelect(selector, redirected = false, values = {
+    player1: "Player 1",
+    player2: "Player 2",
+    player3: "Player 3",
+    player4: "Player 4",
+    water: 6,
+    NOP: undefined}) 
+    {
+    for (var canvas of document.querySelectorAll("canvas")) {
+        document.body.removeChild(canvas)
     }
+    document.body.removeChild(document.querySelector(selector))
 
+    displayElements(redirected, values)
+}
+
+function displayElements(redirected, values) {
     const container = document.createElement("div")
     document.body.appendChild(container)
     container.id = "playerOptions"
 
-    const s = new playerSelection()
-    let a = undefined
-    let playCustomCreated = false
     
+    let startMenu = undefined
 
-    delegate(s.container, "click", "[data-player-count]", playerCount)
-    delegate(s.container, "mouseover", "#playerOptions", onHoverplayerCount)
     
+    if (redirected == true) {
+        var selectionMenu = new playerSelection(values.NOP)
+        startMenu = new playCustom(selectionMenu.tileParam.height)
+        
+        delegate(selectionMenu.container, "click", "[data-player-count]", playerCount)
+        var previousListener = undefined
+        
+        const set = setting => {
+            loadSettings(values.NOP, "#playerOptions")
+        }
+        document.querySelector("#Settings").addEventListener("click", set)
+        document.querySelector("#Begin").addEventListener("click", loadGamePage)
+        previousListener = set
+            
+        document.getElementById(values.NOP).dataset.selected = "true"
+        var playersSelected = true
+    }
+
+    else {
+        var selectionMenu = new playerSelection()
+        playersSelected = false
+        var previousListener = undefined
+    }
+
+    delegate(selectionMenu.container, "mouseover", "#playerOptions", onHoverElement)
+    delegate(selectionMenu.container, "click", "[data-player-count]", playerCount)
+
     function playerCount(target, event) {
         let index = 1
-        const nrOfPlayers = target.srcElement.dataset.playerCount
-        
+        values.NOP = target.srcElement.dataset.playerCount
+
         for (let row = 0; row < 2; row++) {
             for (let col = 0; col < 2; col++) {
                 const button = document.querySelector(`[data-player-count = '${index}']`)
-                
+
                 if (index == target.srcElement.dataset.playerCount) {
-                    s.renderTiles(row, col, index, "#ffeccb", "#81563ee0")
+                    selectionMenu.renderTiles(row, col, index, "#ffeccb", "#81563ee0")
                     button.dataset.selected = "true"
                 }
                 else {
-                    s.renderTiles(row, col, index, "#81563e", "#ffeccbe0")
+                    selectionMenu.renderTiles(row, col, index, "#81563e", "#ffeccbe0")
                     button.dataset.selected = "false"
                 }
                 index++
             }
         }
-        if(playCustomCreated == false){
-            a = new playCustom(s.tileParam.height)
+
+        const set = setting => {
+                loadSettings(values.NOP, "#playerOptions")
+            }
+        
+        if (playersSelected == false) {
+            startMenu = new playCustom(selectionMenu.tileParam.height)
+            document.querySelector("#Settings").addEventListener("click", set)
+            document.querySelector("#Begin").addEventListener("click", loadGamePage)
+
+            playersSelected = true
+            previousListener = set
         }
-        playCustomCreated = true
+        else {
+            document.querySelector("#Settings").removeEventListener("click", previousListener)
+            document.querySelector("#Settings").addEventListener("click", set)
+            previousListener = set
+        }
+    }
+
+    function onHoverElement(target, event) {
+        if (target.srcElement.dataset.selected != "true" && target.srcElement.dataset.type == "playerSelection") {
+            selectionMenu.renderTiles(target.srcElement.dataset.row,
+                target.srcElement.dataset.col,
+                target.srcElement.id,
+                "#ffeccb", "#81563ee0")
+        }
+        else if (target.srcElement.dataset.type != "playerSelection") {
+
+            startMenu.redrawTiles(target.srcElement.dataset.row,
+                target.srcElement.dataset.col,
+                target.srcElement.id,
+                "#ffeccb", "#81563ee0")
+        }
+
+
+        target.srcElement.addEventListener("pointerleave", mouseLeaveElement)
+    }
+
+    function mouseLeaveElement(target, event) {
+        if (target.srcElement.dataset.selected != "true" &&
+            parseInt(target.srcElement.dataset.selected) != values.NOP &&
+            target.srcElement.dataset.type == "playerSelection") {
+                selectionMenu.renderTiles(target.srcElement.dataset.row,
+                    target.srcElement.dataset.col,
+                    target.srcElement.id,
+                    "#81563e", "#ffeccbe0")
+        }
+        else if (target.srcElement.dataset.type != "playerSelection") {
+            startMenu.redrawTiles(target.srcElement.dataset.row,
+                target.srcElement.dataset.col,
+                target.srcElement.id,
+                "#81563e", "#ffeccbe0")
+        }
     }
     
-    function onHoverplayerCount(target, event) {
-        if(target.srcElement.dataset.selected != "true" && target.srcElement.dataset.type == "playerSelection"){
-            s.renderTiles(target.srcElement.dataset.row,
-                target.srcElement.dataset.col,
-                target.srcElement.id,
-                "#ffeccb", "#81563ee0")
-        }
-        else if(target.srcElement.dataset.type != "playerSelection"){
-
-            a.redrawTiles(target.srcElement.dataset.row,
-                target.srcElement.dataset.col,
-                target.srcElement.id,
-                "#ffeccb", "#81563ee0")
-        }
-
-        
-        target.srcElement.addEventListener("pointerleave", leaveplayerCount)
-    }
-
-
-    function leaveplayerCount(target, event) {
-        if(target.srcElement.dataset.selected != "true" && target.srcElement.dataset.type == "playerSelection"){
-            s.renderTiles(target.srcElement.dataset.row,
-                target.srcElement.dataset.col,
-                target.srcElement.id,
-                "#81563e", "#ffeccbe0")
-        }
-        else if(target.srcElement.dataset.type != "playerSelection"){
-            a.redrawTiles(target.srcElement.dataset.row,
-                target.srcElement.dataset.col,
-                target.srcElement.id,
-                "#81563e", "#ffeccbe0")
-        }
+    function loadGamePage(target) {
+        loadGame(values, "#playerOptions")
     }
 }
 
-function loadNextPage(context, elements) {
-    canvasFunc.clearCanvas(context)
-    document.body.removeChild(document.querySelector("canvas"))
-    for (let element of elements) {
-        document.body.removeChild(element)
-    }
 
-}

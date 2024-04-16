@@ -1,39 +1,41 @@
 export function createCanvas() {
     const canvas = document.createElement('canvas')
 
-    if (window.innerWidth > window.innerHeight){
+    if (window.innerWidth > window.innerHeight) {
         canvas.width = window.innerWidth - 8
         canvas.height = window.innerHeight - 8
-    } 
-    else{
-        canvas.width = window.innerWidth
-        canvas.height = window.innerHeight
     }
-    
+    else {
+        canvas.width = window.innerWidth - 8
+        canvas.height = window.innerHeight - 8
+    }
+
     canvas.style.position = "absolute"
+    canvas.style.display = "block"
     document.body.insertBefore(canvas, document.querySelector("#canvasLine"))
 
     return canvas
 }
 
-export function clearCanvas(context){
-    if (window.innerWidth > window.innerHeight){
+export function clearCanvas(context) {
+    if (window.innerWidth > window.innerHeight) {
         context.clearRect(0, 0, window.innerWidth - 8, window.innerHeight - 8)
-    } 
-    else{
+    }
+    else {
         context.clearRect(0, 0, window.innerWidth, window.innerHeight)
     }
 }
 
-export function outline(context, fillStyle, alpha, row, col, tileParam) {
-
+export function outline(context, fillStyle, alpha, row, col, tileParam, arch = 6, fill = true) {
     context.roundRect(
         tileParam.x + (col * (tileParam.width + tileParam.leftPadding)),
         tileParam.y + (row * (tileParam.height + tileParam.bottomPadding)),
-        tileParam.width, tileParam.height, 6)
+        tileParam.width, tileParam.height, arch)
     context.globalAlpha = alpha
-    context.fillStyle = fillStyle
-    context.fill()
+    if (fill) {
+        context.fillStyle = fillStyle
+        context.fill()
+    }
     context.globalAlpha = 1
     context.stroke()
 }
@@ -57,9 +59,9 @@ export function insertElement(canvasX, canvasY, width, height, type, dataName = 
     //1.25 = width + width / 4
     element.style.width = width + "px"
     element.style.height = height + "px"
-    if(dataName != ""){
+    if (dataName != "") {
         element.setAttribute(dataName, dataValue)
-        
+
     }
 
     return element
